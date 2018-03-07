@@ -13,12 +13,6 @@ defmodule ChexWeb.SlackRefreshController do
     # create tables
     # put_status
     # put_resp_header
-    #with {:ok, %SlackChex{} = slack_chex} <- Chexers.create_slack_chex(slack_chex_params) do
-      #conn
-      #|> put_status(:created)
-      #|> put_resp_header("location", slack_chex_path(conn, :show, slack_chex))
-      #|> render("show.json", slack_chex: slack_chex)
-    #end
     with true <- check_secret(slack_refresh_params),
          {:ok, members} <- get_slack_users() do
       count = count_members(members)
@@ -34,7 +28,8 @@ defmodule ChexWeb.SlackRefreshController do
   end
 
   defp check_secret(params) do
-    Map.get(params, "secret") == "refreshme"
+    secret = Application.get_env(:chex, ChexWeb.Endpoint)[:refresh_secret]
+    Map.get(params, "secret") == secret
   end
 
   defp count_members(members \\ []) do
