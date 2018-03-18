@@ -7,13 +7,8 @@
   * `slak_chex` is the model to track a single slack check
   * `slack_chex_server` is the genserver taht is kicked off to track a single slack check
   * `chexers` is the service that creates new chexers
-* Add env var support
-* Create SlackChex User refresh (eventually password protected)
-  * drop slach_users and slack_user_profiles
-  * get Slack.Web.Users.list
-  * insert them into the db
-  * Enum.each Map.get(Slack.Web.Users.list, "members"), fn member -> if Map.get(member, "real_name") === "Chris Steinmeyer" do IO.inspect(Map.get(member, "id")) end end
-  * Enum.each members, fn member -> if Map.get(member, "real_name") === "Chris Steinmeyer" do IO.inspect(Map.get(member, "id")) end end
+* change the user and profile creation to Ecto.multi
+* create slack_refresh create view and return the complete object
 * Request/Response for a single user's status
 * GenServer polling for a single user
 * Websockets for status on a given user

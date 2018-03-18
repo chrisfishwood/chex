@@ -20,7 +20,7 @@ defmodule Chex.Repo.Migrations.CreateSlackUserProfiles do
       add :phone, :string
       add :real_name, :string
       add :real_name_normalized, :string
-      add :slype, :string
+      add :skype, :string
       add :status_emoji, :string
       add :status_text, :string
       add :team, :string

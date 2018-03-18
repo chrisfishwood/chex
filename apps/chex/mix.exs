@@ -43,7 +43,8 @@ defmodule Chex.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:slack, "~> 0.12.0"}
+      {:slack, "~> 0.12.0"},
+      {:exprof, "~> 0.2.0"}
     ]
   end
 

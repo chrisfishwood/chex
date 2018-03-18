@@ -24,6 +24,8 @@ defmodule Chex.Slack.User do
     field :tz_offset, :integer
     field :updated, :integer
 
+    has_one :slack_user_profile, Chex.Slack.User.Profile
+
     timestamps()
   end
 
@@ -31,6 +33,5 @@ defmodule Chex.Slack.User do
   def changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:color, :deleted, :has_2fa, :slack_id, :is_admin, :is_app_user, :is_bot, :is_owner, :is_primary_owner, :is_restricted, :is_ultra_restricted, :name, :real_name, :team_id, :tz, :tz_label, :tz_offset, :updated])
-    |> validate_required([:color, :deleted, :has_2fa, :slack_id, :is_admin, :is_app_user, :is_bot, :is_owner, :is_primary_owner, :is_restricted, :is_ultra_restricted, :name, :real_name, :team_id, :tz, :tz_label, :tz_offset, :updated])
   end
 end

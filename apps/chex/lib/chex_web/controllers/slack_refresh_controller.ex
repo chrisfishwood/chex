@@ -3,27 +3,81 @@ defmodule ChexWeb.SlackRefreshController do
 
   alias Chex.Chexers
   alias Chex.Chexers.SlackChex
+  alias Chex.Slack.User.Profile
+  alias Chex.Slack.User
+  alias Chex.Repo
+
+  require IEx
+  require Logger
+  
+  import ExProf.Macro
 
   action_fallback ChexWeb.FallbackController
 
   def create(conn, %{"slack_refresh" => slack_refresh_params}) do
     IO.inspect slack_refresh_params
-    # with check param for secret
-    # drop tables
-    # create tables
-    # put_status
-    # put_resp_header
     with true <- check_secret(slack_refresh_params),
-         {:ok, members} <- get_slack_users() do
+         {:ok, members} <- get_slack_users(),
+         true <- Kernel.length(members) > 0 do
+
+      Repo.delete_all Profile
+      Repo.delete_all User
       count = count_members(members)
+      #profile = Enum.each(List.last(members), &create_user_and_profile/1)
+      {:ok, user} = create_user_and_profile(List.last(members))
+      Logger.debug fn -> "returning user: #{inspect(user)}" end
+      #profile = Enum.each(List.last(members), &create_user_and_profile/1)
       conn
       |>put_status(:created)
-      |>text(count)
+      |>json("{'user_name':'#{user.real_name}'}")
     else
       _ ->
         conn
         |>put_status(:service_unavailable)
         |>text(0)
+    end
+  end
+
+  defp create_user_and_profile(member) do
+    Logger.debug fn -> "inserting: #{inspect(member)}" end
+
+    {:ok, slack_user} = create_slack_user(member)
+    profile_params = Map.get(member, "profile") 
+    {:ok, profile} = create_profile(profile_params, slack_user)
+    #Repo.get(User, slack_user.id) |> Repo.preload(:slack_user_profile)
+    {:ok, slack_user}
+  end
+
+  defp create_profile(profile_params, slack_user) do
+    Logger.debug fn -> inspect(slack_user) end
+    Logger.debug fn -> inspect(profile_params) end
+    changeset = %Profile{slack_user_id: slack_user.id}
+    |> Profile.changeset(profile_params)
+
+    with {:ok, profile} <- Repo.insert(changeset) do
+      Logger.debug fn -> IO.puts("Created profile for #{profile.display_name}") end
+      {:ok, profile}
+    else
+      {:error, changeset} -> 
+        Logger.error fn ->
+          IO.inspect ("An error occurred creating a profile for #{Map.get(profile_params, "display_name")}")
+          IO.inspect changeset.errors
+        end
+    end
+  end
+
+  defp create_slack_user(user_params) do
+    changeset = User.changeset(%User{}, user_params)
+    IO.inspect changeset
+    with {:ok, user} <- Repo.insert(changeset) do
+      Logger.debug fn -> IO.puts("Created user for #{user.real_name}") end
+      {:ok, user}
+    else
+      {:error, changeset} -> 
+        Logger.error fn ->
+          IO.inspect ("An error occurred creating a user for #{Map.get(user_params, "real_name")}")
+          IO.inspect changeset.errors
+        end
     end
   end
 
