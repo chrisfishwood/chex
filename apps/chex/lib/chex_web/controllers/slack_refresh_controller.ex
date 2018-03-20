@@ -11,6 +11,7 @@ defmodule ChexWeb.SlackRefreshController do
   require Logger
   
   import ExProf.Macro
+  import Ecto.Query, only: [from: 2]
 
   action_fallback ChexWeb.FallbackController
 
@@ -29,7 +30,7 @@ defmodule ChexWeb.SlackRefreshController do
       #profile = Enum.each(List.last(members), &create_user_and_profile/1)
       conn
       |>put_status(:created)
-      |>json("{'user_name':'#{user.real_name}'}")
+      |>json(user)
     else
       _ ->
         conn
@@ -45,7 +46,12 @@ defmodule ChexWeb.SlackRefreshController do
     profile_params = Map.get(member, "profile") 
     {:ok, profile} = create_profile(profile_params, slack_user)
     #Repo.get(User, slack_user.id) |> Repo.preload(:slack_user_profile)
-    {:ok, slack_user}
+    member_with_profile = from(u in User, where: u.id == ^slack_user.id)
+    |>Repo.all()
+    |>Repo.preload(:slack_user_profile)
+    #member_with_profile = Repo.get(User, slack_user.id)
+    #member_with_profile = Repo.preload(member_with_profile, :slack_user_profile)
+    {:ok, member_with_profile}
   end
 
   defp create_profile(profile_params, slack_user) do

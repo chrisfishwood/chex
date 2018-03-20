@@ -24,7 +24,7 @@ defmodule Chex.Slack.User do
     field :tz_offset, :integer
     field :updated, :integer
 
-    has_one :slack_user_profile, Chex.Slack.User.Profile
+    has_one :slack_user_profile, Chex.Slack.User.Profile, foreign_key: :slack_user_id
 
     timestamps()
   end
