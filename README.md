@@ -19,7 +19,11 @@
   * Upload Slack token for workspace
 
 
-
+#Lessons Learned
+* If you are using a custom (non-standard) association name (`slack_user_id` and not `user_id` you need to add a `foreign_key` to the association in the model.
+* Use `Ecto.multi` instead of transactions
+* All log messages are executed during runtime, only the the ones below 'level' aren't shown.
+* `inspect` in loggers are expensive.
 
 ## Questions
 
