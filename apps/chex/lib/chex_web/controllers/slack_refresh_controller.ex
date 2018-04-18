@@ -30,7 +30,7 @@ defmodule ChexWeb.SlackRefreshController do
       #profile = Enum.each(List.last(members), &create_user_and_profile/1)
       conn
       |>put_status(:created)
-      |>json(user)
+      |>render("show.json", refreshes: List.first(user))
     else
       _ ->
         conn
